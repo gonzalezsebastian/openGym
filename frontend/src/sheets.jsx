@@ -51,6 +51,7 @@ import { stampWorkout } from './lib/sync-merge.js'
 import { weeklyWeights } from './lib/bodyweight.js'
 import { workoutText } from './lib/workout-text.js'
 import { copyText } from './lib/clipboard.js'
+import { workoutRef } from './views/Recap.jsx'
 
 const S = () => useStore.getState().S
 const update = (...a) => useStore.getState().update(...a)
@@ -2086,6 +2087,8 @@ function WorkoutDetail({ w, close }) {
       }
     })}>{t('Save as routine')}</Button>
     <div style={{ height: 8 }} />
+    <Button icon="upload" onClick={() => { saveNote(); close(); nav('/recap/workout/' + workoutRef(w)) }}>{t('Share workout')}</Button>
+    <div style={{ height: 8 }} />
     <Button icon="clipboard" onClick={copyAsText}>{t('Copy as text')}</Button>
     <div style={{ height: 10 }} />
     {/* Matched the way the edits above are, not by id: a workout from before ids has none, and
@@ -2622,6 +2625,8 @@ function FinishSummary({ w, prs, e1prs = [], close }) {
     {/* The moment for a progress photo or the clip of a set: the workout is already saved, so
         what is added here goes straight onto its record. */}
     <div style={{ textAlign: 'start' }}><WorkoutMediaSection w={w} hint /></div>
+    <Button icon="upload" onClick={() => { close(); nav('/recap/workout/' + workoutRef(w)) }}>{t('Share workout')}</Button>
+    <div style={{ height: 8 }} />
     <Button variant="primary" onClick={() => { close(); nav('/home') }}>{t('Nice!')}</Button>
   </div>
 }

@@ -1723,3 +1723,16 @@ body.chips-dragging *{cursor:inherit}
 [dir="rtl"] .hm-wrap,[dir="rtl"] .cal-grid{direction:ltr}
 /* Tight tracking is tuned for Latin; Arabic is a connected script and gets none. */
 [dir="rtl"] *{letter-spacing:0}
+
+/* ── Recaps (views/Recap.jsx): a swipeable row of shareable cards ───────────────────────── */
+.recap-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 9% 10px;margin:0 calc(-1 * var(--pad));scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.recap-row::-webkit-scrollbar{display:none}
+.recap-slide{flex:0 0 82%;max-width:420px;scroll-snap-align:center}
+.recap-canvas{display:block;width:100%;height:auto;aspect-ratio:1080/1350;border-radius:18px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.recap-row.bg-transparent .recap-canvas{box-shadow:none;background:repeating-conic-gradient(#5b6170 0 25%,#3d424e 0 50%) 0 0/28px 28px}
+.recap-dots{display:flex;justify-content:center;gap:7px;margin:6px 0 14px}
+.recap-dots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:var(--label-3);opacity:.45}
+.recap-dots button.on{background:var(--acc);opacity:1}
+.recap-item{width:100%;gap:12px;padding:12px 2px;background:none;border:0;border-bottom:1px solid var(--sep);color:inherit;font:inherit;text-align:start;align-items:center}
+.recap-item:last-child{border-bottom:0}
+.recap-item .icn{color:var(--acc)}

@@ -461,6 +461,18 @@ export default function Stats() {
 
     </div>
 
+    {workouts.length > 0 && <div className="card">
+      <div className="row between" style={{ alignItems: 'center', gap: 12 }}>
+        <div style={{ minWidth: 0 }}><h2 style={{ margin: 0 }}>{t('Recaps')}</h2>
+          <div className="muted small" style={{ marginTop: 4 }}>{t('Your months and years as cards to share.')}</div></div>
+        <Button size="sm" variant="tinted" trailingIcon="chevronRight" style={{ flexShrink: 0 }} onClick={() => nav('/recap')}>{t('All')}</Button>
+      </div>
+      <div className="row" style={{ gap: 8, marginTop: 12 }}>
+        <Button size="sm" icon="calendar" style={{ flex: 1 }} onClick={() => nav('/recap/month/' + todayISO().slice(0, 7))}>{t('This month')}</Button>
+        <Button size="sm" icon="star" style={{ flex: 1 }} onClick={() => nav('/recap/year/' + todayISO().slice(0, 4))}>{t('{0} in review', todayISO().slice(0, 4))}</Button>
+      </div>
+    </div>}
+
     <div className="card">
       <h2>{t('Activity — last 12 months')}</h2>
       <Heatmap
