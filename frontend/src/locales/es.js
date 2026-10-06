@@ -1677,7 +1677,6 @@ export default {
   '{0} days trained': '{0} días entrenados',
   'This month you worked mainly on': 'Este mes trabajaste sobre todo',
   'Your top exercises': 'Tus ejercicios principales',
-  '{0} openGym in review': 'Tu {0} en openGym',
   'Well done! You crushed {0} 💪': '¡Bien hecho! Arrasaste en {0} 💪',
   'Total weight you have lifted': 'Peso total que levantaste',
   'Workouts this year': 'Entrenamientos este año',

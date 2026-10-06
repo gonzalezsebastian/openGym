@@ -1697,7 +1697,6 @@ export default {
   "{0} days trained": "{0} days trained",
   "This month you worked mainly on": "This month you worked mainly on",
   "Your top exercises": "Your top exercises",
-  "{0} openGym in review": "{0} openGym in review",
   "Well done! You crushed {0} 💪": "Well done! You crushed {0} 💪",
   "Total weight you have lifted": "Total weight you have lifted",
   "Workouts this year": "Workouts this year",

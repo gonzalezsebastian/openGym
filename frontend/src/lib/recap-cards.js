@@ -352,7 +352,7 @@ export function monthCards(r, env) {
 
 export function yearCards(r, env) {
   const unit = env.unit
-  const eyebrow = t('{0} openGym in review', r.year)
+  const eyebrow = t('{0} in review', r.year)
   const { totals } = r
   const groups = topGroups(r.radar).slice(0, 3).map(g => cap(t(GROUP_LABEL[g])))
   const cards = [
