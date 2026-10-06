@@ -90,28 +90,23 @@ function thumb(ctx, img, cx, cy, r, pal) {
   ctx.lineWidth = 4; ctx.strokeStyle = pal.grid; ctx.stroke()
 }
 
-function frame(ctx, pal, { eyebrow, title, handle }) {
+// No footer: the whole card is the content, so the type can be as large as the card allows.
+function frame(ctx, pal, { eyebrow, title }) {
   ctx.clearRect(0, 0, W, H)
   if (pal.bg) { rr(ctx, 0, 0, W, H, 64); ctx.fillStyle = pal.bg; ctx.fill() }
   if (pal.shadow) { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12 }
-  if (eyebrow) text(ctx, eyebrow, P, 150, { size: 34, color: pal.sub })
-  if (title) text(ctx, title, P, 218, { size: 56, weight: 700, color: pal.ink, max: W - 2 * P })
-  // Footer: the app's name, and whose card it is.
-  const fy = H - 84
-  ctx.beginPath(); ctx.arc(P + 22, fy - 14, 22, 0, Math.PI * 2); ctx.fillStyle = pal.acc; ctx.fill()
-  text(ctx, '◆', P + 22, fy - 1, { size: 24, weight: 700, color: pal.onAcc, align: 'center' })
-  text(ctx, 'openGym', P + 60, fy, { size: 42, weight: 800, color: pal.ink })
-  if (handle) text(ctx, '@' + handle, W - P, fy, { size: 36, color: pal.sub, align: 'right', max: W / 2 - P })
+  if (eyebrow) text(ctx, eyebrow, P, 140, { size: 42, color: pal.sub, max: W - 2 * P })
+  if (title) text(ctx, title, P, 228, { size: 72, weight: 800, color: pal.ink, max: W - 2 * P })
 }
 
-function statGrid(ctx, pal, items, y0, { cols = 2, gap = 210 } = {}) {
+function statGrid(ctx, pal, items, y0, { cols = 2, gap = 380 } = {}) {
   const cw = (W - 2 * P) / cols
   items.forEach((it, i) => {
     const x = P + (i % cols) * cw
     const y = y0 + Math.floor(i / cols) * gap
-    text(ctx, it.label, x, y, { size: 38, color: pal.sub })
-    text(ctx, it.value, x, y + 84, { size: 78, weight: 800, color: pal.ink, max: cw - 20 })
-    if (it.delta) text(ctx, it.delta, x, y + 134, { size: 32, color: pal.sub })
+    text(ctx, it.label, x, y, { size: 46, color: pal.sub, max: cw - 20 })
+    text(ctx, it.value, x, y + 106, { size: 100, weight: 800, color: pal.ink, max: cw - 20 })
+    if (it.delta) text(ctx, it.delta, x, y + 166, { size: 40, color: pal.sub, max: cw - 20 })
   })
 }
 const delta = (cur, prev, fmt = v => num(v)) => {
@@ -139,19 +134,19 @@ function radar(ctx, pal, values, cx, cy, r) {
   RADAR_ORDER.forEach((g, i) => { const [x, y] = pt(i, Math.max(0.04, (values[g] || 0) / max)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y) })
   ctx.closePath()
   ctx.globalAlpha = 0.35; ctx.fillStyle = pal.acc; ctx.fill(); ctx.globalAlpha = 1
-  ctx.lineWidth = 7; ctx.lineJoin = 'round'; ctx.strokeStyle = pal.acc; ctx.stroke()
+  ctx.lineWidth = 8; ctx.lineJoin = 'round'; ctx.strokeStyle = pal.acc; ctx.stroke()
   RADAR_ORDER.forEach((g, i) => {
-    const [x, y] = pt(i, 1.2)
-    text(ctx, cap(t(GROUP_LABEL[g])), x, y + 12, { size: 34, color: pal.sub, align: 'center' })
+    const [x, y] = pt(i, 1.24)
+    text(ctx, cap(t(GROUP_LABEL[g])), x, y + 15, { size: 44, weight: 500, color: pal.sub, align: 'center' })
   })
 }
 
 function monthCalendar(ctx, pal, year, month, days, ws, y0) {
   const order = weekOrder(ws)
   const step = (W - 2 * P) / 7
-  const r = Math.min(46, step / 2 - 8)
+  const r = Math.min(54, step / 2 - 6)
   const dayHead = d => cap(new Date(2024, 0, 7 + d).toLocaleDateString(dateLocale(), { weekday: 'narrow' }))
-  order.forEach((d, i) => text(ctx, dayHead(d), P + step * (i + 0.5), y0, { size: 34, weight: 600, color: pal.ink, align: 'center' }))
+  order.forEach((d, i) => text(ctx, dayHead(d), P + step * (i + 0.5), y0, { size: 42, weight: 700, color: pal.ink, align: 'center' }))
   const first = new Date(year, month, 1)
   const offset = (first.getDay() - ws + 7) % 7
   const len = new Date(year, month + 1, 0).getDate()
@@ -159,11 +154,11 @@ function monthCalendar(ctx, pal, year, month, days, ws, y0) {
   for (let d = 1; d <= len; d++) {
     const slot = offset + d - 1
     const cx = P + step * (slot % 7 + 0.5)
-    const cy = y0 + 80 + Math.floor(slot / 7) * (r * 2 + 22)
+    const cy = y0 + 90 + Math.floor(slot / 7) * (r * 2 + 22)
     const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
     const hit = on.has(iso)
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = hit ? pal.acc : pal.chip; ctx.fill()
-    text(ctx, d, cx, cy + 12, { size: 32, weight: hit ? 700 : 400, color: hit ? pal.onAcc : pal.sub, align: 'center' })
+    text(ctx, d, cx, cy + 14, { size: 40, weight: hit ? 800 : 500, color: hit ? pal.onAcc : pal.sub, align: 'center' })
   }
 }
 
@@ -171,19 +166,19 @@ function yearDots(ctx, pal, year, days, ws, y0, y1) {
   const on = new Set(days)
   const colW = (W - 2 * P) / 3
   const rowH = (y1 - y0) / 4
-  const step = Math.min(colW / 7.4, (rowH - 44) / 6)
-  const r = step * 0.36
+  const step = Math.min(colW / 7.3, (rowH - 52) / 6)
+  const r = step * 0.38
   for (let m = 0; m < 12; m++) {
     const x0 = P + (m % 3) * colW
     const top = y0 + Math.floor(m / 3) * rowH
-    text(ctx, cap(new Date(year, m, 1).toLocaleDateString(dateLocale(), { month: 'short' })).replace('.', ''), x0, top + 28, { size: 28, color: pal.ink })
+    text(ctx, cap(new Date(year, m, 1).toLocaleDateString(dateLocale(), { month: 'short' })).replace('.', ''), x0, top + 36, { size: 38, weight: 600, color: pal.ink })
     const offset = (new Date(year, m, 1).getDay() - ws + 7) % 7
     const len = new Date(year, m + 1, 0).getDate()
     for (let d = 1; d <= len; d++) {
       const slot = offset + d - 1
       const iso = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
       ctx.beginPath()
-      ctx.arc(x0 + step * (slot % 7 + 0.5), top + 44 + step * (Math.floor(slot / 7) + 0.5), r, 0, Math.PI * 2)
+      ctx.arc(x0 + step * (slot % 7 + 0.5), top + 52 + step * (Math.floor(slot / 7) + 0.5), r, 0, Math.PI * 2)
       ctx.fillStyle = on.has(iso) ? pal.acc : pal.chip
       ctx.fill()
     }
@@ -193,111 +188,109 @@ function yearDots(ctx, pal, year, days, ws, y0, y1) {
 function monthBars(ctx, pal, year, counts, best, y0, y1) {
   const max = Math.max(1, ...counts)
   const slot = (W - 2 * P) / 12
-  const bw = slot * 0.62
+  const bw = slot * 0.64
   counts.forEach((n, i) => {
-    const h = Math.max(bw, (y1 - y0 - 50) * n / max)
+    const h = Math.max(bw, (y1 - y0 - 60) * n / max)
     const x = P + slot * i + (slot - bw) / 2
-    rr(ctx, x, y1 - 50 - h, bw, h, bw / 2)
+    rr(ctx, x, y1 - 60 - h, bw, h, bw / 2)
     ctx.fillStyle = i === best ? pal.acc : n ? pal.bar : pal.chip
     ctx.fill()
     const ini = cap(new Date(year, i, 1).toLocaleDateString(dateLocale(), { month: 'narrow' }))
-    text(ctx, ini, x + bw / 2, y1, { size: 30, weight: i === best ? 700 : 400, color: i === best ? pal.ink : pal.sub, align: 'center' })
+    text(ctx, ini, x + bw / 2, y1, { size: 40, weight: i === best ? 800 : 500, color: i === best ? pal.ink : pal.sub, align: 'center' })
   })
 }
 
 function exerciseBars(ctx, pal, top, imgs, y0) {
   const max = Math.max(1, ...top.map(x => x.sets))
   const full = W - 2 * P
-  const bh = 88
+  const bh = 104
   top.forEach((x, i) => {
-    const y = y0 + i * 190
-    text(ctx, exName(x.id), P, y, { size: 36, weight: 500, color: pal.ink, max: full })
-    const len = Math.max(bh * 2.6, full * x.sets / max)
-    rr(ctx, P, y + 22, len, bh, bh / 2)
+    const y = y0 + i * 226
+    text(ctx, exName(x.id), P, y, { size: 44, weight: 600, color: pal.ink, max: full })
+    const len = Math.max(bh * 2.7, full * x.sets / max)
+    rr(ctx, P, y + 24, len, bh, bh / 2)
     ctx.fillStyle = i === 0 ? pal.acc : pal.bar
     ctx.fill()
-    text(ctx, t('{0} sets', num(x.sets)), P + len - bh - 18, y + 22 + bh / 2 + 14, { size: 40, weight: 800, color: i === 0 ? pal.onAcc : pal.barInk, align: 'right' })
-    thumb(ctx, imgs[exImg(x.id)], P + len - bh / 2, y + 22 + bh / 2, bh / 2 - 6, pal)
+    text(ctx, t('{0} sets', num(x.sets)), P + len - bh - 18, y + 24 + bh / 2 + 17, { size: 48, weight: 800, color: i === 0 ? pal.onAcc : pal.barInk, align: 'right' })
+    thumb(ctx, imgs[exImg(x.id)], P + len - bh / 2, y + 24 + bh / 2, bh / 2 - 7, pal)
   })
 }
 
-function recordList(ctx, pal, items, imgs, unit, y0, { limit = 3, rowH = 200 } = {}) {
+function recordList(ctx, pal, items, imgs, unit, y0, { limit = 3, rowH = 230 } = {}) {
   items.slice(0, limit).forEach((rec, i) => {
     const y = y0 + i * rowH
-    thumb(ctx, imgs[exImg(rec.id)], P + 70, y + 60, 66, pal)
-    text(ctx, exName(rec.id), P + 170, y + 30, { size: 38, weight: 600, color: pal.ink, max: W - 2 * P - 170 })
-    let ly = y + 86
-    if (rec.w) { text(ctx, '🏆 ' + t('Weight') + ' · ' + fmtNum(rec.w) + ' ' + unit, P + 170, ly, { size: 34, weight: 600, color: GOLD }); ly += 50 }
-    if (rec.e1) text(ctx, '🏆 ' + t('Est. 1RM') + ' · ' + fmtNum(rec.e1) + ' ' + unit, P + 170, ly, { size: 34, weight: 600, color: GOLD })
+    thumb(ctx, imgs[exImg(rec.id)], P + 76, y + 66, 74, pal)
+    const x = P + 186
+    text(ctx, exName(rec.id), x, y + 34, { size: 46, weight: 700, color: pal.ink, max: W - P - x })
+    let ly = y + 98
+    if (rec.w) { text(ctx, '🏆 ' + t('Weight') + ' · ' + fmtNum(rec.w) + ' ' + unit, x, ly, { size: 42, weight: 700, color: GOLD, max: W - P - x }); ly += 56 }
+    if (rec.e1) text(ctx, '🏆 ' + t('Est. 1RM') + ' · ' + fmtNum(rec.e1) + ' ' + unit, x, ly, { size: 42, weight: 700, color: GOLD, max: W - P - x })
   })
 }
 
 function bigNumber(ctx, pal, value, unitLabel, y) {
-  text(ctx, value, W / 2, y, { size: 170, weight: 800, color: pal.ink, align: 'center' })
-  if (unitLabel) text(ctx, unitLabel, W / 2, y + 70, { size: 44, color: pal.ink, align: 'center' })
+  text(ctx, value, W / 2, y, { size: 200, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+  if (unitLabel) text(ctx, unitLabel, W / 2, y + 84, { size: 56, weight: 500, color: pal.ink, align: 'center' })
 }
 
 function heavyCard(ctx, pal, volume, unit, y0) {
   const kg = unit === 'lb' ? volume * LB_KG : volume
   const thing = heavyThingFor(kg)
-  text(ctx, compact(volume) + ' ' + unit, W / 2, y0 + 150, { size: 150, weight: 800, color: pal.ink, align: 'center' })
-  text(ctx, thing.emoji, W / 2, y0 + 520, { size: 300, color: pal.ink, align: 'center' })
+  text(ctx, compact(volume) + ' ' + unit, W / 2, y0 + 190, { size: 180, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+  text(ctx, thing.emoji, W / 2, y0 + 610, { size: 360, color: pal.ink, align: 'center' })
   const what = thing.times >= 1.5 ? t(thing.many, num(thing.times, 1)) : t(thing.one)
-  wrap(ctx, t("That's like lifting {0}!", what), W / 2, y0 + 660, { size: 46, weight: 600, color: pal.ink })
+  wrap(ctx, t("That's like lifting {0}!", what), W / 2, y0 + 790, { size: 60, weight: 700, color: pal.ink })
 }
 
 // ── card sets ─────────────────────────────────────────────────────────────────────────────
 // Each card: { key, imgs: [urls it needs], draw(ctx, pal, imgs) }. `env` carries the profile
-// bits a card prints: { unit, handle, ws }.
+// bits a card uses: { unit, handle, ws }.
 
 export function workoutCards(r, env) {
   const { w, totals } = r
   const unit = env.unit
-  const base = { handle: env.handle }
   const eyebrow = t('Your workout #{0}', num(r.n))
+  const dur = totals.durationMs >= 60000 ? fmtDur(totals.durationMs) : '—'
   const cards = [
     {
       key: 'summary', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, eyebrow, title: w.name || t('Workout') })
-        const cols = [
-          [t('Duration'), totals.durationMs >= 60000 ? fmtDur(totals.durationMs) : '—'],
-          [t('Volume'), compact(totals.volume) + ' ' + unit],
-          [t('Sets'), num(totals.sets)],
-        ]
+        frame(ctx, pal, { eyebrow, title: w.name || t('Workout') })
+        const cols = [[t('Duration'), dur], [t('Volume'), compact(totals.volume) + ' ' + unit], [t('Sets'), num(totals.sets)]]
+        const cw = (W - 2 * P) / 3
         cols.forEach(([l, v], i) => {
-          const cx = P + (W - 2 * P) * (i + 0.5) / 3
-          text(ctx, l, cx, 320, { size: 36, color: pal.sub, align: 'center' })
-          text(ctx, v, cx, 390, { size: 54, weight: 800, color: pal.ink, align: 'center' })
+          const cx = P + cw * (i + 0.5)
+          text(ctx, l, cx, 350, { size: 44, color: pal.sub, align: 'center', max: cw - 10 })
+          text(ctx, v, cx, 436, { size: 66, weight: 800, color: pal.ink, align: 'center', max: cw - 10 })
         })
-        radar(ctx, pal, r.radar, W / 2, 780, 290)
+        radar(ctx, pal, r.radar, W / 2, 870, 300)
       },
     },
     {
       key: 'heavy', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, eyebrow, title: t('You lifted a total of') })
-        heavyCard(ctx, pal, totals.volume, unit, 230)
+        frame(ctx, pal, { eyebrow, title: t('You lifted a total of') })
+        heavyCard(ctx, pal, totals.volume, unit, 240)
       },
     },
     {
       key: 'stats', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, eyebrow, title: w.name || t('Workout') })
+        frame(ctx, pal, { eyebrow, title: w.name || t('Workout') })
         statGrid(ctx, pal, [
-          { label: t('Duration'), value: totals.durationMs >= 60000 ? fmtDur(totals.durationMs) : '—' },
+          { label: t('Duration'), value: dur },
           { label: t('Volume'), value: compact(totals.volume) + ' ' + unit },
           { label: t('Exercises'), value: num(r.exercises) },
           { label: t('Sets'), value: num(totals.sets) },
-        ], 420, { gap: 300 })
+        ], 470, { gap: 420 })
       },
     },
   ]
   if (r.records.count) cards.push({
     key: 'prs', imgs: r.records.items.slice(0, 4).map(x => exImg(x.id)),
     draw(ctx, pal, imgs) {
-      frame(ctx, pal, { ...base, eyebrow, title: t('Personal records') })
-      recordList(ctx, pal, r.records.items, imgs, unit, 320, { limit: 4, rowH: 200 })
+      frame(ctx, pal, { eyebrow, title: t('Personal records') })
+      recordList(ctx, pal, r.records.items, imgs, unit, 340, { limit: 4, rowH: 240 })
     },
   })
   return cards
@@ -306,53 +299,52 @@ export function workoutCards(r, env) {
 export function monthCards(r, env) {
   const unit = env.unit
   const eyebrow = monthName(r.year, r.month)
-  const base = { handle: env.handle, eyebrow }
   const { totals, prev } = r
   const groups = topGroups(r.radar).slice(0, 3).map(g => cap(t(GROUP_LABEL[g])))
   const cards = [
     {
       key: 'totals', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, title: t('Workouts') })
+        frame(ctx, pal, { eyebrow, title: t('Workouts') })
         statGrid(ctx, pal, [
           { label: t('Workouts'), value: num(totals.workouts), delta: delta(totals.workouts, prev.workouts) },
           { label: t('Duration'), value: totals.durationMs >= 60000 ? fmtDur(totals.durationMs) : '—', delta: delta(totals.durationMs, prev.durationMs, fmtDur) },
           { label: t('Volume'), value: compact(totals.volume) + ' ' + unit, delta: delta(totals.volume, prev.volume, v => compact(v) + ' ' + unit) },
           { label: t('Sets'), value: num(totals.sets), delta: delta(totals.sets, prev.sets) },
-        ], 380, { gap: 330 })
-        text(ctx, t('Compared with the month before'), P, H - 200, { size: 30, color: pal.sub })
+        ], 420, { gap: 400 })
+        text(ctx, t('Compared with the month before'), P, H - 100, { size: 40, color: pal.sub, max: W - 2 * P })
       },
     },
     {
       key: 'prs', imgs: r.records.items.slice(0, 4).map(x => exImg(x.id)),
       draw(ctx, pal, imgs) {
-        frame(ctx, pal, { ...base, title: t('Personal records') })
-        if (!r.records.count) { wrap(ctx, t('No new records this month. Next one is coming!'), W / 2, 620, { size: 46, weight: 600, color: pal.sub }); return }
-        recordList(ctx, pal, r.records.items, imgs, unit, 320, { limit: 4, rowH: 200 })
+        frame(ctx, pal, { eyebrow, title: t('Personal records') })
+        if (!r.records.count) { wrap(ctx, t('No new records this month. Next one is coming!'), W / 2, 660, { size: 60, weight: 700, color: pal.sub }); return }
+        recordList(ctx, pal, r.records.items, imgs, unit, 340, { limit: 4, rowH: 240 })
       },
     },
     {
       key: 'days', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, title: t('Workout days log') })
-        monthCalendar(ctx, pal, r.year, r.month, r.days, env.ws, 330)
-        text(ctx, t('{0} days trained', num(totals.days)), W / 2, H - 190, { size: 40, weight: 700, color: pal.ink, align: 'center' })
+        frame(ctx, pal, { eyebrow, title: t('Workout days log') })
+        monthCalendar(ctx, pal, r.year, r.month, r.days, env.ws, 350)
+        text(ctx, t('{0} days trained', num(totals.days)), W / 2, H - 90, { size: 60, weight: 800, color: pal.ink, align: 'center' })
       },
     },
     {
       key: 'radar', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, title: t('This month you worked mainly on') })
-        radar(ctx, pal, r.radar, W / 2, 640, 280)
-        if (groups.length) wrap(ctx, listJoin(groups), W / 2, 1100, { size: 64, weight: 800, color: pal.ink })
+        frame(ctx, pal, { eyebrow, title: t('This month you worked mainly on') })
+        radar(ctx, pal, r.radar, W / 2, 690, 300)
+        if (groups.length) wrap(ctx, listJoin(groups), W / 2, 1200, { size: 80, weight: 800, color: pal.ink })
       },
     },
   ]
   if (r.top.length) cards.push({
     key: 'top', imgs: r.top.map(x => exImg(x.id)),
     draw(ctx, pal, imgs) {
-      frame(ctx, pal, { ...base, title: t('Your top exercises') })
-      exerciseBars(ctx, pal, r.top, imgs, 330)
+      frame(ctx, pal, { eyebrow, title: t('Your top exercises') })
+      exerciseBars(ctx, pal, r.top, imgs, 360)
     },
   })
   return cards
@@ -361,89 +353,88 @@ export function monthCards(r, env) {
 export function yearCards(r, env) {
   const unit = env.unit
   const eyebrow = t('{0} openGym in review', r.year)
-  const base = { handle: env.handle, eyebrow }
   const { totals } = r
   const groups = topGroups(r.radar).slice(0, 3).map(g => cap(t(GROUP_LABEL[g])))
   const cards = [
     {
       key: 'intro', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base })
-        wrap(ctx, t('Well done! You crushed {0} 💪', r.year), W / 2, 230, { size: 56, weight: 700, color: pal.ink })
-        ctx.beginPath(); ctx.arc(W / 2, 480, 130, 0, Math.PI * 2); ctx.fillStyle = pal.acc; ctx.fill()
-        text(ctx, (env.handle || 'G')[0].toLocaleUpperCase(), W / 2, 530, { size: 140, weight: 800, color: pal.onAcc, align: 'center' })
-        bigNumber(ctx, pal, num(totals.workouts), t('Workouts'), 820)
+        frame(ctx, pal, { eyebrow })
+        wrap(ctx, t('Well done! You crushed {0} 💪', r.year), W / 2, 250, { size: 68, weight: 800, color: pal.ink })
+        ctx.beginPath(); ctx.arc(W / 2, 540, 140, 0, Math.PI * 2); ctx.fillStyle = pal.acc; ctx.fill()
+        text(ctx, (env.handle || 'G')[0].toLocaleUpperCase(), W / 2, 594, { size: 150, weight: 800, color: pal.onAcc, align: 'center' })
+        bigNumber(ctx, pal, num(totals.workouts), t('Workouts'), 910)
         const cols = [[hours(totals.durationMs), t('Duration')], [compact(totals.volume) + ' ' + unit, t('Volume')]]
         cols.forEach(([v, l], i) => {
-          const cx = W / 2 + (i ? 1 : -1) * 220
-          text(ctx, v, cx, 1060, { size: 60, weight: 800, color: pal.ink, align: 'center' })
-          text(ctx, l, cx, 1110, { size: 34, color: pal.sub, align: 'center' })
+          const cx = W / 2 + (i ? 1 : -1) * 230
+          text(ctx, v, cx, 1170, { size: 76, weight: 800, color: pal.ink, align: 'center', max: 440 })
+          text(ctx, l, cx, 1232, { size: 44, color: pal.sub, align: 'center' })
         })
       },
     },
     {
       key: 'heavy', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base, title: t('Total weight you have lifted') })
-        heavyCard(ctx, pal, totals.volume, unit, 230)
+        frame(ctx, pal, { eyebrow, title: t('Total weight you have lifted') })
+        heavyCard(ctx, pal, totals.volume, unit, 240)
       },
     },
     {
       key: 'dots', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base })
-        text(ctx, num(totals.workouts), W / 2, 300, { size: 110, weight: 800, color: pal.ink, align: 'center' })
-        text(ctx, t('Workouts this year'), W / 2, 360, { size: 40, color: pal.ink, align: 'center' })
-        yearDots(ctx, pal, r.year, r.days, env.ws, 410, H - 150)
+        frame(ctx, pal, { eyebrow })
+        text(ctx, num(totals.workouts), W / 2, 320, { size: 140, weight: 800, color: pal.ink, align: 'center' })
+        text(ctx, t('Workouts this year'), W / 2, 392, { size: 50, weight: 500, color: pal.ink, align: 'center' })
+        yearDots(ctx, pal, r.year, r.days, env.ws, 430, H - 50)
       },
     },
     {
       key: 'months', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base })
-        if (r.bestMonth < 0) { wrap(ctx, t('No workouts this year yet.'), W / 2, 620, { size: 46, weight: 600, color: pal.sub }); return }
+        frame(ctx, pal, { eyebrow })
+        if (r.bestMonth < 0) { wrap(ctx, t('No workouts this year yet.'), W / 2, 660, { size: 60, weight: 700, color: pal.sub }); return }
         const best = cap(new Date(r.year, r.bestMonth, 1).toLocaleDateString(dateLocale(), { month: 'long' }))
-        wrap(ctx, t('{0} was your best month with', best), W / 2, 230, { size: 50, weight: 700, color: pal.ink })
-        bigNumber(ctx, pal, num(r.counts[r.bestMonth]), t('Workouts'), 460)
-        monthBars(ctx, pal, r.year, r.counts, r.bestMonth, 590, 1040)
-        wrap(ctx, t('On average, you trained {0} times in active months', num(r.avgActive)), W / 2, 1120, { size: 38, weight: 500, color: pal.ink })
+        text(ctx, t('{0} was your best month with', best), W / 2, 250, { size: 64, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+        bigNumber(ctx, pal, num(r.counts[r.bestMonth]), t('Workouts'), 520)
+        monthBars(ctx, pal, r.year, r.counts, r.bestMonth, 650, 1130)
+        wrap(ctx, t('On average, you trained {0} times in active months', num(r.avgActive)), W / 2, 1215, { size: 46, weight: 600, color: pal.ink })
       },
     },
     {
       key: 'radar', imgs: [],
       draw(ctx, pal) {
-        frame(ctx, pal, { ...base })
-        wrap(ctx, t('This year you worked mainly on'), W / 2, 230, { size: 52, weight: 700, color: pal.ink })
-        radar(ctx, pal, r.radar, W / 2, 640, 280)
-        if (groups.length) wrap(ctx, listJoin(groups), W / 2, 1100, { size: 64, weight: 800, color: pal.ink })
+        frame(ctx, pal, { eyebrow })
+        text(ctx, t('This year you worked mainly on'), W / 2, 250, { size: 64, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+        radar(ctx, pal, r.radar, W / 2, 700, 290)
+        if (groups.length) wrap(ctx, listJoin(groups), W / 2, 1200, { size: 80, weight: 800, color: pal.ink })
       },
     },
   ]
   if (r.top.length) cards.push({
     key: 'top', imgs: r.top.map(x => exImg(x.id)),
     draw(ctx, pal, imgs) {
-      frame(ctx, pal, { ...base })
-      wrap(ctx, t('Your top exercises were'), W / 2, 230, { size: 52, weight: 700, color: pal.ink })
-      exerciseBars(ctx, pal, r.top, imgs, 340)
+      frame(ctx, pal, { eyebrow })
+      text(ctx, t('Your top exercises were'), W / 2, 250, { size: 64, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+      exerciseBars(ctx, pal, r.top, imgs, 380)
     },
   })
   cards.push({
     key: 'prs', imgs: r.records.items.slice(0, 3).map(x => exImg(x.id)),
     draw(ctx, pal, imgs) {
-      frame(ctx, pal, { ...base })
-      wrap(ctx, t('In {0} you had in total', r.year), W / 2, 230, { size: 52, weight: 700, color: pal.ink })
-      text(ctx, '🏆', W / 2, 380, { size: 110, color: pal.ink, align: 'center' })
-      bigNumber(ctx, pal, num(r.records.count), t('Personal records'), 560)
-      recordList(ctx, pal, r.records.items, imgs, unit, 700, { limit: 3, rowH: 160 })
+      frame(ctx, pal, { eyebrow })
+      text(ctx, t('In {0} you had in total', r.year), W / 2, 250, { size: 64, weight: 800, color: pal.ink, align: 'center', max: W - 2 * P })
+      text(ctx, '🏆', W / 2, 400, { size: 120, color: pal.ink, align: 'center' })
+      bigNumber(ctx, pal, num(r.records.count), t('Personal records'), 600)
+      recordList(ctx, pal, r.records.items, imgs, unit, 760, { limit: 3, rowH: 190 })
     },
   })
   cards.push({
     key: 'streak', imgs: [],
     draw(ctx, pal) {
-      frame(ctx, pal, { ...base, title: t('Your longest streak') })
-      text(ctx, '🔥', W / 2, 640, { size: 300, color: pal.ink, align: 'center' })
-      bigNumber(ctx, pal, num(r.streak), r.streak === 1 ? t('week') : t('weeks'), 860)
-      wrap(ctx, t('was your longest streak this year - keep that fire burning!'), W / 2, 1060, { size: 42, weight: 500, color: pal.ink })
+      frame(ctx, pal, { eyebrow, title: t('Your longest streak') })
+      text(ctx, '🔥', W / 2, 700, { size: 360, color: pal.ink, align: 'center' })
+      bigNumber(ctx, pal, num(r.streak), r.streak === 1 ? t('week') : t('weeks'), 950)
+      wrap(ctx, t('was your longest streak this year - keep that fire burning!'), W / 2, 1150, { size: 52, weight: 600, color: pal.ink })
     },
   })
   return cards

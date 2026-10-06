@@ -73,13 +73,23 @@ function Viewer({ title, sub, cards, back, fileBase }) {
   const onScroll = () => {
     const el = rowRef.current
     if (!el) return
-    const slide = el.firstElementChild?.offsetWidth || el.clientWidth
-    setIdx(Math.max(0, Math.min(cards.length - 1, Math.round(el.scrollLeft / (slide + 14)))))
+    // The card whose centre is nearest the row's centre is the one on screen.
+    const mid = el.scrollLeft + el.clientWidth / 2
+    let best = 0
+    ;[...el.children].forEach((s, i) => {
+      const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid)
+      const bd = Math.abs(el.children[best].offsetLeft + el.children[best].offsetWidth / 2 - mid)
+      if (d < bd) best = i
+    })
+    setIdx(best)
   }
   const goTo = i => {
     const el = rowRef.current
-    const slide = el?.children[i]
-    if (slide) el.scrollTo({ left: slide.offsetLeft - (el.clientWidth - slide.offsetWidth) / 2, behavior: 'smooth' })
+    const n = Math.max(0, Math.min(cards.length - 1, i))
+    const slide = el?.children[n]
+    if (!slide) return
+    setIdx(n)
+    el.scrollTo({ left: slide.offsetLeft - (el.clientWidth - slide.offsetWidth) / 2, behavior: 'smooth' })
   }
 
   const fileOf = i => {
@@ -102,7 +112,7 @@ function Viewer({ title, sub, cards, back, fileBase }) {
     }
   }
 
-  return <div className="recap">
+  return <div className="recap-view">
     <div className="hdr"><button className="iconbtn" onClick={() => (back ? nav(back) : nav(-1))} aria-label={t('Back')}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, marginInlineStart: 12 }}><h1>{title}</h1>{sub && <div className="sub">{sub}</div>}</div></div>
 
@@ -111,7 +121,11 @@ function Viewer({ title, sub, cards, back, fileBase }) {
         <CardCanvas card={card} pal={pal} imgs={imgs} onBlob={b => { blobs.current[i] = b }} />
       </div>)}
     </div>
-    <div className="recap-dots">{cards.map((c, i) => <button key={c.key} className={i === idx ? 'on' : ''} aria-label={String(i + 1)} onClick={() => goTo(i)} />)}</div>
+    <div className="recap-nav">
+      <button className="iconbtn" disabled={idx === 0} onClick={() => goTo(idx - 1)} aria-label={t('Previous')}><Icon name="chevronLeft" /></button>
+      <div className="recap-dots">{cards.map((c, i) => <button key={c.key} className={i === idx ? 'on' : ''} aria-label={String(i + 1)} onClick={() => goTo(i)} />)}</div>
+      <button className="iconbtn" disabled={idx === cards.length - 1} onClick={() => goTo(idx + 1)} aria-label={t('Next')}><Icon name="chevronRight" /></button>
+    </div>
 
     <div className="small muted" style={{ margin: '4px 0 6px' }}>{t('Background')}</div>
     <Segmented className="seg-range" value={bg} onChange={pickBg}
